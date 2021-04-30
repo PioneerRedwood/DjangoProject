@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>프렌드차이</title>
+</head>
+<body>
+<h1>브랜드 목록</h1>
+{% if brand_list %}
+<ul>
+    {% for brand in brand_list %}
+    <li><a href="{% url 'myapp:detail' brand.id %}">{{brand.brand_name}}</a></li>
+    {% endfor %}
+</ul>
+{% else %}
+  <p>No brand to show</p>
+{% endif %}
+</body>
+</html>

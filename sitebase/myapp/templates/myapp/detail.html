@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ brand.brand_name}}</title>
+</head>
+<body>
+{% if error_message %}<p><strong>{{error_message}}</strong></p>{% endif %}
+<h1>{{brand.brand_name}}</h1>
+<div>
+    <table>
+        <tr>
+            <td>업종</td>
+            <td>{{brand.sector}}</td>
+            <td>상호</td>
+            <td>{{brand.mutual}}</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

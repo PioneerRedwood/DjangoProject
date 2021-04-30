@@ -33,15 +33,6 @@ class Brand(models.Model):
     total_cost = models.IntegerField()
 
 
-"""
-id, 상호, 대표자, 법인 설립 등기일, 사업자 등록일, 
-대표번호, 대표 팩스 번호, 주소, 사업자 유형, 법인 등록 번호, 사업자 등록 번호
-2020년-2017년 (자산, 부채, 자본, 매출액, 영업이익, 당기순이익)
-2020년-2017년 (개점, 폐점(계약종료 + 계약해지), 명의변경)
-최근 3년간 법 위반 사실(공정거래위원회의 시정조치, 민사소송 패소 및 민사상 화해, 형의 선고)
-"""
-
-
 class Headquarter(models.Model):
     # 5
     id = models.CharField(max_length=8, primary_key=True)
@@ -114,3 +105,9 @@ class Headquarter(models.Model):
     num_of_correction = models.IntegerField()
     num_loss_of_law = models.IntegerField()
     num_of_sentences = models.IntegerField()
+
+
+# class Address(models.Model):
+#
+#
+# class Population(models.Model):
