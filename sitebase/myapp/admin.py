@@ -1,10 +1,5 @@
 from django.contrib import admin
-from .models import Brand, Headquarter
-
-
-# class BrandInline(admin.StackedInline):
-#     model = Brand
-#     extra = 3
+from .models import Brand, Headquarter, StoreAddress, Population
 
 
 class BrandAdmin(admin.ModelAdmin):
@@ -29,5 +24,19 @@ class HeadquarterAdmin(admin.ModelAdmin):
     search_fields = ['mutual']
 
 
+class StoreAddressAdmin(admin.ModelAdmin):
+    list_display = ('sector', 'brand_name', 'do', 'sigu', 'dong', 'longitude', 'latitude')
+    list_filter = ['brand_name']
+    search_fields = ['brand_name']
+
+
+class PopulationAdmin(admin.ModelAdmin):
+    list_display = ('do', 'sigu', 'dong', 'population')
+    list_filter = ['sigu']
+    search_fields = ['do']
+
+
 admin.site.register(Brand, BrandAdmin)
 admin.site.register(Headquarter, HeadquarterAdmin)
+admin.site.register(StoreAddress, StoreAddressAdmin)
+admin.site.register(Population, PopulationAdmin)

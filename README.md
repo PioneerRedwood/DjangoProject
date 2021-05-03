@@ -2,8 +2,11 @@
 정보공개서로부터 읽어낸 데이터를 웹 통신을 하기 위한 서버 프로토타입 프로젝트
 [데이터 수집 프로젝트](https://github.com/PioneerRedwood/CrawlingData)
 
+
+
 ## 2021.04.29.
-Brand, Headquarter 데이터 MySql에 삽입
+
+Brand, Headquarter 데이터 MySQL에 삽입
 
 
 
@@ -18,6 +21,8 @@ Brand, Headquarter 데이터 MySql에 삽입
     총 비용(total_cost)
 ✌브랜드 테이블은 정보공개서에서 제공한 데이터를 가공하여 제작했다.
 
+
+
 ### Headquarter 테이블 정보
     id, 상호(mutual), 대표자(representative), 법인 설립 등기일(register_law_date),
     사업자 등록일(register_biz_date), 대표번호(representative_number), 
@@ -29,3 +34,65 @@ Brand, Headquarter 데이터 MySql에 삽입
 
 ✌본사 테이블은 정보공개서에서 제공한 데이터를 가공하여 제작했다.
 
+
+
+## 2021.05.03 업데이트
+
+StoreAddress와 Population 데이터 MySQL에 삽입
+
+
+
+### StoreAddress 테이블 정보
+
+```
+id, 업종(sector), 브랜드명(brand_name), 도(do), 시구(sigu), 동(dong), 
+경도(longitude), 위도(latitude)
+```
+
+✌소상공인진흥공단 OpenAPI에서 제공한 전국 가게 주소 데이터를 가공하여 제작했다.
+
+- 동이 없는 350개의 항은 삭제됐다.
+
+
+
+### Population 인구수 테이블 정보
+
+```
+id, 도(do), 시구(sigu), 동(dong), 인구수(population)
+```
+
+✌2021년 3월에 공개한 행정동별 인구수 공공데이터 csv 파일을 가공하여 제작했다.
+
+
+
+##### 브랜드 검색 기능
+
+- 이상한 오류로 id가 1인 '복도네'를 검색하면 에러가 뜬다.
+
+- NoReverseMatch at /myapp/brand_search/ 이 이상한 에러는 id가 1인 브랜드에서만 뜬다.
+
+##### html 파일 리팩토링
+
+- myapp/brand : 첫 화면, 파일 위치: myapp/index.html
+- myapp/brand/search/ : 추가된 검색 기능, 파일 위치: myapp/brand/search.html
+
+##### 카카오맵 API 시범 적용
+
+myapp/kakaomap.html [클릭한 위치에 마커 표시하기 - Kakao Maps API](https://apis.map.kakao.com/web/sample/addMapClickEventWithMarker/)
+
+- 경위도로 지도에 나타내면 될 것 같다.
+- 실전에서 지도를 사용할 때는 특정 브랜드 + 위치 + 업종 정보가 함께 요청되며 그에 맞는 지도 정보를 띄우기 위한 프로세스를 정할 필요가 있다.
+
+##### Django REST API 시범 적용
+
+[Django REST API 공식 문서](https://www.django-rest-framework.org/)
+
+- 인구수 테이블 관련하여 REST API를 동작했다. 
+- Postman이라는 별도의 툴을 통해 통신하는 것을 테스트했다.
+
+
+
+##### 🤔추가할 사항
+
+- 로그인, 로그아웃, 아이디 찾기, 비밀번호 찾기, OAuth 등 사용자 관련 REST API
+- 카카오맵 API 적극 사용하여 위치와 업종을 지정하여 해당 지역에 속한 모든 업종을 마커로 맵에 표시하기

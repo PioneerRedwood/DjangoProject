@@ -18,6 +18,6 @@ from django.urls import path, include
 
 # 내가 등록한 앱의 urls 을 include 해야함
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('myapp/', include('myapp.urls')),
+    path('admin/', admin.site.urls),
 ]

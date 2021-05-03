@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Brand(models.Model):
@@ -31,6 +32,9 @@ class Brand(models.Model):
     cost_per_area = models.IntegerField()
     standard_area = models.IntegerField()
     total_cost = models.IntegerField()
+
+    def get_absolute_url(self):
+        return reverse('myapp:detail', kwargs={'pk': self.id})
 
 
 class Headquarter(models.Model):
@@ -107,7 +111,22 @@ class Headquarter(models.Model):
     num_of_sentences = models.IntegerField()
 
 
-# class Address(models.Model):
-#
-#
-# class Population(models.Model):
+class StoreAddress(models.Model):
+    id = models.CharField(max_length=8, primary_key=True, null=False)
+    sector = models.CharField(max_length=16, null=False)
+    brand_name = models.CharField(max_length=40)
+
+    do = models.CharField(max_length=16, null=False)
+    sigu = models.CharField(max_length=32, null=False)
+    dong = models.CharField(max_length=16)
+
+    longitude = models.CharField(max_length=16, null=False)
+    latitude = models.CharField(max_length=16, null=False)
+
+
+class Population(models.Model):
+    id = models.CharField(max_length=8, primary_key=True, null=False)
+    do = models.CharField(max_length=16, null=False)
+    sigu = models.CharField(max_length=32, null=False)
+    dong = models.CharField(max_length=16)
+    population = models.IntegerField()

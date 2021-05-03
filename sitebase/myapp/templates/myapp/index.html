@@ -6,6 +6,9 @@
 </head>
 <body>
 <h1>브랜드 목록</h1>
+<h2>
+    <a href="{% url 'myapp:brand_search' %}">브랜드 검색하기</a>
+</h2>
 {% if brand_list %}
 <ul>
     {% for brand in brand_list %}
@@ -13,7 +16,7 @@
     {% endfor %}
 </ul>
 {% else %}
-  <p>No brand to show</p>
+<p>No brand to show</p>
 {% endif %}
 </body>
 </html>
