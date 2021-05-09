@@ -1,13 +1,37 @@
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import LoginView, LogoutView, FormView
+
+from rest_framework.urlpatterns import format_suffix_patterns
 
 from . import views
+from .views import PopulationView
 
 app_name = 'myapp'
+
+population_list = PopulationView.as_view({
+    'post': 'create',
+    'get': 'list'
+})
+
+population_detail = PopulationView.as_view({
+    'get': 'retrieve',
+    'put': 'update',
+    'patch': 'partial_update',
+    'detail': 'destroy'
+})
 
 urlpatterns = [
     path('brand/', views.IndexView.as_view(), name='index'),
     path('brand/<int:pk>/', views.DetailView.as_view(), name='detail'),
     path('address/', views.AddressView.as_view(), name='address'),
-    path('population/', views.PopulationListView.as_view(), name='population_list'),
     path('brand/search/', views.SearchFromView.as_view(), name='brand_search'),
+
+    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('population/', population_list, name='population_list'),
+    path('population/<int:pk>/', population_detail, name='population_detail'),
+
+    path('login/', views.login_view, name='login'),
+
+    path('register/', views.registration_view, name='register'),
 ]

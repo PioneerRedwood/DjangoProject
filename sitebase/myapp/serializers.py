@@ -1,11 +1,21 @@
 from rest_framework import serializers
 from .models import Population
+from django.contrib.auth.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')
 
 
 class PopulationSerializer(serializers.ModelSerializer):
+    # user = UserSerializer(read_only=True)
+
     class Meta:
         model = Population
         fields = ('id', 'do', 'sigu', 'dong', 'population')
+        read_only_fields = ('population',)
 
     def create(self, validated_data):
         return Population.objects.create(**validated_data)

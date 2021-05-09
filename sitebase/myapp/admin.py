@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Brand, Headquarter, StoreAddress, Population
+from .models import Brand, Headquarter, StoreAddress, Population, Account
 
 
 class BrandAdmin(admin.ModelAdmin):
@@ -36,7 +36,27 @@ class PopulationAdmin(admin.ModelAdmin):
     search_fields = ['do']
 
 
+class AccountAdmin(admin.ModelAdmin):
+    list_display = ('email', 'username', 'joined_at', 'last_login_at')
+    list_display_links = ('email', 'username')
+    exclude = ('password',)  # 사용자 상세 정보에서 비밀번호 필드를 노출하지 않음
+
+    def joined_at(self, obj):
+        return obj.date_joined.strftime("%Y-%m-%d")
+
+    def last_login_at(self, obj):
+        if not obj.last_login:
+            return ''
+        return obj.last_login.strftime("%Y-%m-%d %H:%M")
+
+    joined_at.admin_order_field = '-date_joined'  # 가장 최근에 가입한 사람부터 리스팅
+    joined_at.short_description = '가입일'
+    last_login_at.admin_order_field = 'last_login_at'
+    last_login_at.short_description = '최근로그인'
+
+
 admin.site.register(Brand, BrandAdmin)
 admin.site.register(Headquarter, HeadquarterAdmin)
 admin.site.register(StoreAddress, StoreAddressAdmin)
 admin.site.register(Population, PopulationAdmin)
+admin.site.register(Account, AccountAdmin)

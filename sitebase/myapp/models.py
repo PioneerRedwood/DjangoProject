@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
 class Brand(models.Model):
@@ -130,3 +131,63 @@ class Population(models.Model):
     sigu = models.CharField(max_length=32, null=False)
     dong = models.CharField(max_length=16)
     population = models.IntegerField()
+
+
+class AccountManager(BaseUserManager):  # 계정을 만드는 데 쓰인다.
+    use_in_migrations = True
+
+    def create_user(self, email, username, password=None):  # 모든 유저를 생성할 때 거치는 함수.
+        if not email:
+            raise ValueError("email 주소가 있어야 합니다.")
+        if not username:
+            raise ValueError('사용자 이름이 있어야 합니다.')
+        user = self.model(
+            email=self.normalize_email(email),
+            username=username
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, username, password):
+        user = self.create_user(
+            email=self.normalize_email(email),
+            password=password,
+            username=username,
+        )
+        user.is_active = True
+        user.is_admin = True
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+
+class Account(AbstractBaseUser):
+    id = models.BigAutoField(primary_key=True)
+    # 계정관련
+    # identifier = models.CharField(max_length=20, unique=True)  # 로그인 할 때 사용할 식별자.
+    email = models.EmailField(verbose_name='email', max_length=60, unique=True)
+    username = models.CharField(max_length=10, unique=True)
+
+    date_joined = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField(auto_now=True)
+
+    is_active = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+
+    REQUIRED_FIELDS = ['username']  # 필수입력 필드
+    USERNAME_FIELD = 'email'  # 로그인 식별자
+
+    def __str__(self):
+        return self.email
+
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        return True
+
+    objects = AccountManager()  # 회원가입을 다룰 클래스(이후 작성)
