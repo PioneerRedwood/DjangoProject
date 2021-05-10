@@ -133,10 +133,10 @@ class Population(models.Model):
     population = models.IntegerField()
 
 
-class AccountManager(BaseUserManager):  # 계정을 만드는 데 쓰인다.
+class AccountManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, email, username, password=None):  # 모든 유저를 생성할 때 거치는 함수.
+    def create_user(self, email, username, password=None):
         if not email:
             raise ValueError("email 주소가 있어야 합니다.")
         if not username:
@@ -166,7 +166,6 @@ class AccountManager(BaseUserManager):  # 계정을 만드는 데 쓰인다.
 class Account(AbstractBaseUser):
     id = models.BigAutoField(primary_key=True)
     # 계정관련
-    # identifier = models.CharField(max_length=20, unique=True)  # 로그인 할 때 사용할 식별자.
     email = models.EmailField(verbose_name='email', max_length=60, unique=True)
     username = models.CharField(max_length=10, unique=True)
 
@@ -190,4 +189,4 @@ class Account(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-    objects = AccountManager()  # 회원가입을 다룰 클래스(이후 작성)
+    objects = AccountManager()

@@ -1,20 +1,15 @@
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
-from django.contrib.auth.views import LoginView, LogoutView, FormView
-
-from rest_framework.urlpatterns import format_suffix_patterns
 
 from . import views
-from .views import PopulationView
 
 app_name = 'myapp'
 
-population_list = PopulationView.as_view({
+population_list = views.PopulationView.as_view({
     'post': 'create',
     'get': 'list'
 })
 
-population_detail = PopulationView.as_view({
+population_detail = views.PopulationView.as_view({
     'get': 'retrieve',
     'put': 'update',
     'patch': 'partial_update',
@@ -32,6 +27,6 @@ urlpatterns = [
     path('population/<int:pk>/', population_detail, name='population_detail'),
 
     path('login/', views.login_view, name='login'),
-
-    path('register/', views.registration_view, name='register'),
+    path('logout/', views.logout_view, name='logout'),
+    path('register/', views.register_view, name='register'),
 ]

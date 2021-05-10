@@ -39,6 +39,8 @@ class PopulationAdmin(admin.ModelAdmin):
 class AccountAdmin(admin.ModelAdmin):
     list_display = ('email', 'username', 'joined_at', 'last_login_at')
     list_display_links = ('email', 'username')
+    search_fields = ('username', 'email')
+    readonly_fields = ('id', 'date_joined', 'last_login')
     exclude = ('password',)  # 사용자 상세 정보에서 비밀번호 필드를 노출하지 않음
 
     def joined_at(self, obj):

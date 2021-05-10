@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, resolve_url
 from django.views import generic
 from django.views.generic import FormView
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -10,10 +10,9 @@ from .serializers import PopulationSerializer
 from rest_framework import generics
 
 from .models import Brand, Headquarter, Population, Account
-from .forms import BrandSearchForm
+from .forms import BrandSearchForm, RegistrationForm, AccountAuthenticationForm
 
 
-# 가장 처음에 보이는 페이지
 class IndexView(generic.ListView):
     template_name = 'myapp/index.html'
     context_object_name = 'brand_list'
@@ -68,37 +67,33 @@ class PopulationView(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-from .forms import RegistrationForm, AccountAuthenticationForm
-from django.contrib import auth, messages
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-
-
-def registration_view(request):
+# 회원가입
+def register_view(request, *args, **kwargs):
+    user = request.user
+    if user.is_authenticated:
+        return redirect("myapp:index")
     context = {}
-    if request.method == 'POST':
+
+    if request.POST:
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            # user = form.save(commit=False)
-            # user.set_password(form.cleaned_data.get('password'))
-            # user.save()
-
-            email = form.cleaned_data.get('email')
-            raw_pass = form.cleaned_data.get('password')
-            account = authenticate(email=email, password=raw_pass)
-            # login(request, account)
-            messages.success(request, '등록됐습니다.'.format(request.user.username))
+            form.save()
+            email = form.cleaned_data.get('email').lower()
+            raw_password = form.cleaned_data.get('password1')
+            account = authenticate(email=email, password=raw_password)
+            login(request, account)
+            destination = get_redirect_if_exists(request)
+            if destination:
+                return redirect(destination)
             return redirect('myapp:index')
-            # return HttpResponse(Account.objects.all())
         else:
-            messages.error(request, '오류')
             context['form'] = form
-    else:
-        form = RegistrationForm()
-        context['form'] = form
+
     return render(request, 'myapp/register.html', context)
 
 
-def login_view(request):
+# 로그인
+def login_view(request, *args, **kwargs):
     context = {}
     user = request.user
 
@@ -106,24 +101,32 @@ def login_view(request):
         return redirect("myapp:index")
 
     if request.POST:
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        # print(type(form), form.__str__)
-        user = authenticate(request, email=email, password=password)
-        if user is not None:
-            login(request, user)
-            # messages.success(request, "Logged In")
-            return redirect("myapp:index")
-        else:
-            # messages.error(request, "please Correct Below Errors")
-            form = AccountAuthenticationForm(request.POST)
-            return render(request, "myapp/login.html", {'form': form})
+        form = AccountAuthenticationForm(request.POST)
+        if form.is_valid():
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            user = authenticate(email=email, password=password)
+            if user is not None:
+                login(request, user)
+                destination = get_redirect_if_exists(request)
+                if destination:
+                    return redirect(destination)
+                return redirect("myapp:index")
     else:
         form = AccountAuthenticationForm()
         context['form'] = form
+
     return render(request, "myapp/login.html", context)
 
-# def logout_view(request):
-#     logout(request)
-#     messages.success(request, "Logged Out")
-#     return redirect("home")
+
+def logout_view(request):
+    logout(request)
+    return redirect('myapp:index')
+
+
+def get_redirect_if_exists(request):
+    next_address = None
+    if request.GET:
+        if request.GET.get('next'):
+            next_address = str(request.GET.get('next'))
+    return next_address
