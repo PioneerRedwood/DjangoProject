@@ -35,6 +35,8 @@ class BrandListView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         if request.GET.get('name'):
             queryset = self.get_queryset().filter(brand_name__contains=request.GET.get('name'))
+        elif request.GET.get('id'):
+            queryset = self.get_queryset().filter(id__iexact=request.GET.get('id'))
         else:
             queryset = self.get_queryset()
 
@@ -42,18 +44,27 @@ class BrandListView(generics.ListAPIView):
         return Response(serializer.data)
 
 
-class BrandDetailView(generics.GenericAPIView):
+class BrandDetailView(generics.ListAPIView):
     """
         브랜드 상세 정보
     """
-    model = Brand
+    search_fields = ['brand_name']
+    filter_backends = (filters.SearchFilter,)
+    queryset = Brand.objects.all()
     serializer_class = BrandSerializer
 
+    def get_queryset(self):
+        return self.queryset.all()
+
     def get(self, request, *args, **kwargs):
-        if request.GET:
+        if request.GET.get('name'):
+            queryset = self.get_queryset().filter(brand_name__iexact=request.GET.get('name'))
+
+        else:
             queryset = self.get_queryset()
-            serializer = BrandSerializer(queryset)
-            return Response(serializer.data)
+
+        serializer = BrandSerializer(queryset)
+        return Response(serializer.data)
 
 
 class HeadquarterView(generics.ListAPIView):
@@ -86,11 +97,13 @@ class StoreAddressView(generics.ListAPIView):
         return self.queryset.all()
 
     def get(self, request, *args, **kwargs):
-        if request.GET.get('do') and request.GET.get('sigu') and request.GET.get('dong'):
+        if request.GET.get('do') and request.GET.get('sigu') and request.GET.get('dong') and request.GET.get('sector'):
             queryset = self.get_queryset().filter(
                 do__iexact=request.GET.get('do'),
                 sigu__iexact=request.GET.get('sigu'),
-                dong__iexact=request.GET.get('dong'))
+                dong__iexact=request.GET.get('dong'),
+                sector__iexact=request.GET.get('sector'),
+            )
         else:
             queryset = self.get_queryset()
         serializer = StoreAddressSerializer(queryset, many=True)

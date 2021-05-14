@@ -1,22 +1,20 @@
-from numba.core.ir_utils import require
 from rest_framework import serializers, validators
 
 from .models import Population, Brand, AnalysisModel, Headquarter, Account, StoreAddress
-# from django.contrib.auth.models import User
 
 from django.contrib.auth.password_validation import validate_password
-
-
-class BrandSnapSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Brand
-        fields = ('id', 'brand_name', 'sector', 'mutual')
 
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
-        fields = '__all__'
+        fields = ['mutual', ]
+
+
+class BrandSnapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ['id', 'brand_name', 'sector', ]
 
 
 class HeadquarterSerializer(serializers.ModelSerializer):

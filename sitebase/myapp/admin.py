@@ -3,16 +3,6 @@ from .models import Brand, Headquarter, StoreAddress, Population, Account
 
 
 class BrandAdmin(admin.ModelAdmin):
-    # fieldsets = [
-    #     (None, {
-    #         'fields': ('brand_name', 'sector', 'mutual')
-    #     }),
-    #     ('Advanced options', {
-    #         'fields': ('sector',),
-    #         'classes': ('collapse',)
-    #     }),
-    # ]
-    # inlines = [BrandInline]
     list_display = ('brand_name', 'sector', 'mutual')
     list_filter = ['brand_name']
     search_fields = ['brand_name']
