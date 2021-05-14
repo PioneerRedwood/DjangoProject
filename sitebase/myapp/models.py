@@ -177,8 +177,8 @@ class Account(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    REQUIRED_FIELDS = ['username']  # 필수입력 필드
-    USERNAME_FIELD = 'email'  # 로그인 식별자
+    REQUIRED_FIELDS = ['email']  # 필수입력 필드
+    USERNAME_FIELD = 'username'  # 로그인 식별자
 
     def __str__(self):
         return self.email
@@ -190,3 +190,33 @@ class Account(AbstractBaseUser):
         return True
 
     objects = AccountManager()
+
+
+class AnalysisModel(models.Model):
+    id = models.CharField(max_length=8, primary_key=True)
+
+    # model
+    sector = models.CharField(max_length=16)
+    brand_name = models.CharField(max_length=40)
+    franchise_months = models.IntegerField()
+
+    num_of_franchise = models.IntegerField()
+    average_sales = models.IntegerField()
+    startup_cost = models.IntegerField()
+
+    rate_of_opening = models.IntegerField()
+    rate_of_closing = models.IntegerField()
+
+    # ratio
+    franchise_months_ratio = models.FloatField()
+    num_of_franchise_ratio = models.FloatField()
+    average_sales_ratio = models.FloatField()
+
+    startup_cost_ratio = models.FloatField()
+    rate_of_opening_ratio = models.FloatField()
+    rate_of_closing_ratio = models.FloatField()
+
+    label = models.IntegerField()
+
+    def __str__(self):
+        return 'id' + self.id + self.sector + self.brand_name

@@ -17,7 +17,7 @@
 {% if brand_list %}
     {% for brand in brand_list %}
         <p>{{ brand.brand_id }} {{ brand.mutual }}</p>
-        <a href="{% url 'myapp:detail' brand.id %}">{{ brand.brand_name }}</a>
+        <a href="{% url 'brand:detail' brand.id %}">{{ brand.brand_name }}</a>
         <p>브랜드 내용</p>
     {% endfor %}
 {% elif search_term %}

@@ -1,16 +1,10 @@
 from django import forms
-from django.contrib.auth.hashers import check_password
-from django.contrib.auth.forms import AuthenticationForm
 
 from .models import Account
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import get_user_model, authenticate
 
 User = get_user_model()
-
-
-class BrandSearchForm(forms.Form):
-    search_keyword = forms.CharField(label='Search Keyword')
 
 
 class RegistrationForm(UserCreationForm):
@@ -42,13 +36,16 @@ class AccountAuthenticationForm(forms.ModelForm):
 
     class Meta:
         model = Account
+        # fields = ('username', 'password')
         fields = ('email', 'password')
 
     def clean(self):
         if self.is_valid():
+            # username = self.cleaned_data.get('username')
             email = self.cleaned_data.get('email')
             password = self.cleaned_data.get('password')
 
+            # if not authenticate(username=username, password=password):
             if not authenticate(email=email, password=password):
                 raise forms.ValidationError('Invalid Login')
 

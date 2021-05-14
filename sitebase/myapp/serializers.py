@@ -1,29 +1,92 @@
-from rest_framework import serializers
-from .models import Population
-from django.contrib.auth.models import User
+from numba.core.ir_utils import require
+from rest_framework import serializers, validators
+
+from .models import Population, Brand, AnalysisModel, Headquarter, Account, StoreAddress
+# from django.contrib.auth.models import User
+
+from django.contrib.auth.password_validation import validate_password
 
 
-class UserSerializer(serializers.ModelSerializer):
+class BrandSnapSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ('id', 'username', 'email')
+        model = Brand
+        fields = ('id', 'brand_name', 'sector', 'mutual')
+
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = '__all__'
+
+
+class HeadquarterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Headquarter
+        # fields = '__all__'
+        fields = ('mutual', 'representative', 'representative_number')
+
+
+class AnalysisModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnalysisModel
+        # fields = ('brand_name', 'average_sales_ratio', 'startup_cost_ratio', 'rate_of_opening_ratio', 'label')
+        fields = '__all__'
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True,
+        validators=[validators.UniqueValidator(queryset=Account.objects.all())]
+    )
+
+    email = serializers.EmailField(
+        required=True,
+        validators=[validators.UniqueValidator(queryset=Account.objects.all())]
+    )
+
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = Account
+        fields = ('username', 'password', 'password2', 'email')
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "비밀번호가 일치하지 않습니다"})
+
+        return attrs
+
+    def create(self, validated_data):
+        account = Account.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email'],
+        )
+
+        account.set_password(validated_data['password'])
+        account.save()
+
+        return account
+
+
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True,
+    )
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+
+    class Meta:
+        model = Account
+        fields = ('username', 'password')
+
+
+class StoreAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreAddress
+        fields = '__all__'
 
 
 class PopulationSerializer(serializers.ModelSerializer):
-    # user = UserSerializer(read_only=True)
-
     class Meta:
         model = Population
-        fields = ('id', 'do', 'sigu', 'dong', 'population')
-        read_only_fields = ('population',)
-
-    def create(self, validated_data):
-        return Population.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.do = validated_data.get('do', instance.do)
-        instance.sigu = validated_data('sigu', instance.sigu)
-        instance.dong = validated_data('dong', instance.dong)
-        instance.population = validated_data('population', instance.population)
-        instance.save()
-        return instance
+        fields = '__all__'
