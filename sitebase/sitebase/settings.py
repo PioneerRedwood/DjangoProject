@@ -28,14 +28,15 @@ SECRET_KEY = 'django-insecure-sizbugop0q6rhmlg_j24^%ohs8=5o$zfhy&34mlqaalc2kucou
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*'
+]
 
 # Application definition
 
 INSTALLED_APPS = [
     'myapp',
     'rest_framework',
-    'rest_framework.authtoken',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,23 +48,27 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+
     'django.middleware.csrf.CsrfViewMiddleware',
     'corsheaders.middleware.CorsPostCsrfMiddleware',
+
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
 
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:8080',
-    'http://127.0.0.1:8080',
-    'http://10.178.0.3.8080',
+    'http://localhost:8081',
+    'http://127.0.0.1:8081',
+    'http://10.178.0.3.8081',
 ]
+
+# ACCESS_CONTROL_ALLOW_ORIGIN = '*'
 
 ROOT_URLCONF = 'sitebase.urls'
 
@@ -104,26 +109,26 @@ else:
     # Cloud SQL via the proxy. To start the proxy via command line:
     #     $ cloud_sql_proxy -instances=[INSTANCE_CONNECTION_NAME]=tcp:3306
     # See https://cloud.google.com/sql/docs/mysql-connect-proxy
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.mysql',
-    #         'HOST': '127.0.0.1',
-    #         'PORT': '3306',
-    #         'NAME': 'friendchai',
-    #         'USER': 'root',
-    #         'PASSWORD': 'semo1054',
-    #     }
-    # }
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'reddb',
-            'USER': 'root',
-            'PASSWORD': 'Whqudq1w2e3!1',
-            'HOST': 'localhost',
+            'HOST': '127.0.0.1',
             'PORT': '3306',
+            'NAME': 'friendchai',
+            'USER': 'root',
+            'PASSWORD': 'semo1054',
         }
     }
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.mysql',
+    #         'NAME': 'reddb',
+    #         'USER': 'root',
+    #         'PASSWORD': 'Whqudq1w2e3!1',
+    #         'HOST': 'localhost',
+    #         'PORT': '3306',
+    #     }
+    # }
 # [END db_setup]
 
 

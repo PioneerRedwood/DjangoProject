@@ -171,22 +171,22 @@ class BaseThemeView(generics.ListAPIView):
                                       'rate_of_opening_ratio')
 
     def list(self, request, *args, **kwargs):
-        # 여기에 request 값 읽어오기
-        queryset = self.get_queryset().filter(label__iexact=2)
-        query_result = list(queryset)
+        if request.GET.get('label'):
+            queryset = self.get_queryset().filter(label__iexact=request.GET.get('label'))
+            query_result = list(queryset)
 
-        top_brands = []
-        for row in query_result:
-            top_brands.append(
-                [row.brand_name, float(row.average_sales_ratio + row.startup_cost_ratio + row.rate_of_opening_ratio)])
-        top_brands.sort(key=lambda x: -x[1])
-        brand_list = []
-        for row in top_brands[:10]:
-            brand_list.append(row[0])
+            top_brands = []
+            for row in query_result:
+                top_brands.append(
+                    [row.brand_name, float(row.average_sales_ratio + (1 - row.startup_cost_ratio) + row.rate_of_opening_ratio)])
+            top_brands.sort(key=lambda x: -x[1])
+            brand_list = []
+            for row in top_brands[:10]:
+                brand_list.append(row[0])
 
-        serializer = AnalysisModelSerializer(
-            queryset.filter(brand_name__in=brand_list), many=True)
-        return Response(serializer.data)
+            serializer = AnalysisModelSerializer(
+                queryset.filter(brand_name__in=brand_list), many=True)
+            return Response(serializer.data)
 
 
 from .apps import FranchiseClassifier
@@ -207,61 +207,63 @@ class CustomThemeView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         # get custom property
-        pro_1th = request.GET.get('1th_property')
-        pro_2th = request.GET.get('2th_property')
-        pro_3th = request.GET.get('3th_property')
-        pro_4th = request.GET.get('4th_property')
-        pro_5th = request.GET.get('5th_property')
-        pro_6th = request.GET.get('6th_property')
+        if request.GET:
+            p1 = request.GET.get('p1')
+            p2 = request.GET.get('p2')
+            p3 = request.GET.get('p3')
+            p4 = request.GET.get('p4')
+            p5 = request.GET.get('p5')
+            p6 = request.GET.get('p6')
 
-        # features ranking => [number_of_months,franchise_count,average_sales,cost,open_rate,close_rate]
-        rank = request.GET.get('features_ranking')
+            # features ranking => [number_of_months,franchise_count,average_sales,cost,open_rate,close_rate]
+            # rank = request.GET.get('features_ranking')
+            rank = [p1, p2, p3, p4, p5, p6]
 
-        # features weight => [0.9, 0.7, 0.5, 0.3, 0.2, 0.1]
-        # rank_weight = request.GET.get('features_weight')
-        rank_weight = [0.9, 0.7, 0.5, 0.3, 0.2, 0.1]
+            # features weight => [0.9, 0.7, 0.5, 0.3, 0.2, 0.1]
+            # rank_weight = request.GET.get('features_weight')
+            rank_weight = [0.9, 0.7, 0.5, 0.3, 0.2, 0.1]
 
-        # features ranking score
-        number_of_months = [309, 198, 84, 75, 74, 35]
-        franchise_count = [1338, 107, 38, 31, 28, 16]
-        average_sales = [999025, 361352, 297889, 268958, 237821, 228112]
-        cost = [72716, 85020, 86420, 92785, 128907, 266781]
-        open_rate = [78, 21, 18, 18, 8, 6]
-        close_rate = [4, 6, 11, 13, 14, 20]
+            # features ranking score
+            number_of_months = [309, 198, 84, 75, 74, 35]
+            franchise_count = [1338, 107, 38, 31, 28, 16]
+            average_sales = [999025, 361352, 297889, 268958, 237821, 228112]
+            cost = [72716, 85020, 86420, 92785, 128907, 266781]
+            open_rate = [78, 21, 18, 18, 8, 6]
+            close_rate = [4, 6, 11, 13, 14, 20]
 
-        # classifierModel result => label extraction
-        classify_result = FranchiseClassifier.load_model.predict([[number_of_months[rank[0]],
-                                                                   franchise_count[rank[1]],
-                                                                   average_sales[rank[2]],
-                                                                   cost[rank[3]],
-                                                                   open_rate[rank[4]],
-                                                                   close_rate[rank[5]]]])
+            # classifierModel result => label extraction
+            classify_result = FranchiseClassifier.load_model.predict([[number_of_months[rank[0]],
+                                                                       franchise_count[rank[1]],
+                                                                       average_sales[rank[2]],
+                                                                       cost[rank[3]],
+                                                                       open_rate[rank[4]],
+                                                                       close_rate[rank[5]]]])
 
-        # get that label
-        query = self.get_queryset().filter(label__iexact=classify_result[0])
+            # get that label
+            query = self.get_queryset().filter(label__iexact=classify_result[0])
 
-        query_result = list(query)
+            query_result = list(query)
 
-        top_brands = []
-        for row in query_result:
-            # brand weight calculration
-            top_brands.append(
-                [row.brand_name, float((row.franchise_months_ratio * rank_weight[0]) +
-                                       (row.num_of_franchise_ratio * rank_weight[1]) +
-                                       (row.average_sales_ratio * rank_weight[2]) +
-                                       ((1 - row.startup_cost_ratio) * rank_weight[3]) +
-                                       (row.rate_of_opening_ratio * rank_weight[4]) +
-                                       ((1 - row.rate_of_closing_ratio) * rank_weight[5]))])
+            top_brands = []
+            for row in query_result:
+                # brand weight calculration
+                top_brands.append(
+                    [row.brand_name, float((row.franchise_months_ratio * rank_weight[0]) +
+                                           (row.num_of_franchise_ratio * rank_weight[1]) +
+                                           (row.average_sales_ratio * rank_weight[2]) +
+                                           ((1 - row.startup_cost_ratio) * rank_weight[3]) +
+                                           (row.rate_of_opening_ratio * rank_weight[4]) +
+                                           ((1 - row.rate_of_closing_ratio) * rank_weight[5]))])
 
-        # brand score sorting
-        top_brands.sort(key=lambda x: -x[1])
-        brand_list = []
-        for row in top_brands[:10]:
-            brand_list.append(row[0])
-        print(brand_list)
+            # brand score sorting
+            top_brands.sort(key=lambda x: -x[1])
+            brand_list = []
+            for row in top_brands[:10]:
+                brand_list.append(row[0])
+            print(brand_list)
 
-        serializer = AnalysisModelSerializer(
-            # AnalysisModel.objects.filter(brand_name__in=brand_list).filter(label__iexact=2), many=True)
-            query.filter(brand_name__in=brand_list), many=True)
-        return Response(serializer.data)
+            serializer = AnalysisModelSerializer(
+                # AnalysisModel.objects.filter(brand_name__in=brand_list).filter(label__iexact=2), many=True)
+                query.filter(brand_name__in=brand_list), many=True)
+            return Response(serializer.data)
 
