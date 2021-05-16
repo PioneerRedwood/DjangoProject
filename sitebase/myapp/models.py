@@ -133,7 +133,7 @@ class Population(models.Model):
     population = models.IntegerField()
 
 
-class AccountManager(BaseUserManager):
+class UserAccountManager(BaseUserManager):
     use_in_migrations = True
 
     def create_user(self, email, username, password=None):
@@ -163,22 +163,21 @@ class AccountManager(BaseUserManager):
         return user
 
 
-class Account(AbstractBaseUser):
-    id = models.BigAutoField(primary_key=True)
-    # 계정관련
-    email = models.EmailField(verbose_name='email', max_length=60, unique=True)
-    username = models.CharField(max_length=10, unique=True)
+class User(AbstractBaseUser):
+    id = models.SmallAutoField(primary_key=True)
+    username = models.CharField(max_length=20, unique=True)
+    email = models.EmailField(verbose_name='email', max_length=128, unique=True)
 
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
 
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    REQUIRED_FIELDS = ['email']  # 필수입력 필드
-    USERNAME_FIELD = 'username'  # 로그인 식별자
+    REQUIRED_FIELDS = ['username']  # 필수입력 필드
+    USERNAME_FIELD = 'email'  # 로그인 식별자
 
     def __str__(self):
         return self.email
@@ -189,7 +188,7 @@ class Account(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-    objects = AccountManager()
+    objects = UserAccountManager()
 
 
 class AnalysisModel(models.Model):

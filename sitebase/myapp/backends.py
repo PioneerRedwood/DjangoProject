@@ -4,9 +4,10 @@ from django.contrib.auth.backends import ModelBackend
 
 class CaseInsensitiveModelBackend(ModelBackend):
     """
-        유저 인증 백엔드 클래스
+        커스텀 유저 인증 백엔드
     """
     def authenticate(self, request, username=None, password=None, **kwargs):
+
         user_model = get_user_model()
         if username is None:
             username = kwargs.get(user_model.USERNAME_FIELD)

@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import Brand, Headquarter, StoreAddress, Population, Account
+
+from .models import (
+    Brand, Headquarter, StoreAddress, Population, User
+)
 
 
 class BrandAdmin(admin.ModelAdmin):
@@ -47,8 +50,14 @@ class AccountAdmin(admin.ModelAdmin):
     last_login_at.short_description = '최근로그인'
 
 
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('email', 'username')
+    list_display_links = ('email', 'username')
+    search_fields = ('username', 'email')
+
+
 admin.site.register(Brand, BrandAdmin)
 admin.site.register(Headquarter, HeadquarterAdmin)
 admin.site.register(StoreAddress, StoreAddressAdmin)
 admin.site.register(Population, PopulationAdmin)
-admin.site.register(Account, AccountAdmin)
+admin.site.register(User, UserAdmin)

@@ -1,22 +1,19 @@
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.views import generic
 from django.contrib.auth import authenticate, login, logout
 
-from rest_framework import viewsets, permissions, generics, filters
-from rest_framework.permissions import AllowAny
+from rest_framework import (
+    viewsets, permissions, generics, filters,
+    views
+)
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 
 from .serializers import (
     BrandSerializer, PopulationSerializer, BrandSnapSerializer,
-    AnalysisModelSerializer, HeadquarterSerializer, RegisterSerializer, LoginSerializer,
-    StoreAddressSerializer
+    AnalysisModelSerializer, HeadquarterSerializer, StoreAddressSerializer
 )
 from .models import (
-    Brand, Headquarter, Population, Account, AnalysisModel, StoreAddress
-)
-from .forms import (
-    RegistrationForm, AccountAuthenticationForm
+    Brand, Headquarter, Population, AnalysisModel, StoreAddress,
+    User,
 )
 
 
@@ -132,92 +129,39 @@ class PopulationListView(generics.ListAPIView):
         return Response(serializer.data)
 
 
-class RegisterView(generics.CreateAPIView):
-    queryset = Account.objects.all()
-    permissions_classes = (AllowAny,)
-    serializer_class = RegisterSerializer
+class RegisterView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        user = User.objects.create_user(
+            username=request.POST.get('username'),
+            email=request.POST.get('email'),
+            password=request.POST.get('password')
+        )
+        user.save()
+
+        token = Token.objects.create(user=user)
+        return Response({"Token": token.key})
 
 
-# 사용 안함
-def register_view(request, *args, **kwargs):
-    user = request.user
-    if user.is_authenticated:
-        return redirect("myapp:index")
-    context = {}
-
-    if request.POST:
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            # username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email').lower()
-            raw_password = form.cleaned_data.get('password1')
-            # account = authenticate(username=username, password=raw_password)
-            account = authenticate(email=email, password=raw_password)
-            login(request, account)
-            destination = get_redirect_if_exists(request)
-            # API에 맞는 Response를 보내야 함
-            if destination:
-                return redirect(destination)
-            return redirect('myapp:index')
+class LoginView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        user = authenticate(email=request.POST.get('email'), password=request.POST.get('password'))
+        if user is not None:
+            login(request, user=user)
+            if user.is_authenticated:
+                return Response(status=200)
         else:
-            context['form'] = form
-
-    return render(request, 'myapp/register.html', context)
+            return Response(status=401)
 
 
-class LoginView(generics.CreateAPIView):
-    queryset = Account.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = LoginSerializer
-
-
-# 로그인
-def login(request, *args, **kwargs):
-    context = {}
-    user = request.user
-
-    # if user.is_authenticated:
-    #     return redirect("myapp:index")
-
-    if request.method == 'POST':
-        form = AccountAuthenticationForm(request.POST)
-        if form.is_valid():
-            email = request.POST.get('email')
-            password = request.POST.get('password')
-            user = authenticate(email=email, password=password)
-            if user is not None:
-                login(request, user)
-                destination = get_redirect_if_exists(request)
-                if destination:
-                    return redirect(destination)
-                return render(request, "myapp/login.html", context)
-        return HttpResponse(status=200)
-    else:
-        form = AccountAuthenticationForm()
-        context['form'] = form
-        return render(request, "myapp/login.html", context)
-
-    # return render(request, "myapp/login.html", context)
-
-
-def logout_view(request):
-    logout(request)
-    return redirect('myapp:index')
-
-
-def get_redirect_if_exists(request):
-    next_address = None
-    if request.GET:
-        if request.GET.get('next'):
-            next_address = str(request.GET.get('next'))
-    return next_address
+class LogoutView(views.APIView):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return Response(status=200)
 
 
 class BaseThemeView(generics.ListAPIView):
     """
-    사용자로부터 테마 선택 입력받고 (1~5 레이블) AnalysisRatioModel 데이터 추출
-    리스트 형태로 만든 뒤 정렬하고 순위에 맞는 상위 10개 브랜드 반환
+    사용자로부터 테마 선택 입력받고 (1~5 레이블) AnalysisRatioModel 레이블 별 상위 10개 브랜드 반환
     """
     queryset = AnalysisModel.objects.all()
     serializer_class = AnalysisModelSerializer
@@ -229,7 +173,6 @@ class BaseThemeView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         # 여기에 request 값 읽어오기
         queryset = self.get_queryset().filter(label__iexact=2)
-        print(queryset)
         query_result = list(queryset)
 
         top_brands = []
@@ -240,10 +183,8 @@ class BaseThemeView(generics.ListAPIView):
         brand_list = []
         for row in top_brands[:10]:
             brand_list.append(row[0])
-        print(brand_list)
 
         serializer = AnalysisModelSerializer(
-            # AnalysisModel.objects.filter(brand_name__in=brand_list).filter(label__iexact=2), many=True)
             queryset.filter(brand_name__in=brand_list), many=True)
         return Response(serializer.data)
 
@@ -251,11 +192,21 @@ class BaseThemeView(generics.ListAPIView):
 class CustomThemeView(generics.ListAPIView):
     """
     사용자가 특성의 우선순위를 입력 받아 그에 맞게 상위 10개 브랜드 반환
-    분석 모델 자체와 정규화된 분석 모델 리스트 조인해서 보내야함
-    join > AnalysisModel + AnalysisRatioModel
     """
     queryset = AnalysisModel.objects.all()
     serializer_class = AnalysisModelSerializer
 
     def get_queryset(self):
-        return self.queryset.filter
+        return self.queryset
+
+    def get(self, request, *args, **kwargs):
+        print(request.header.get('Authorization'))
+
+        if request.user.is_authenticated:
+            print(request.user, " : ", request.auth)
+        else:
+            print('로그인 안됨', request.user)
+
+        analysis_data = self.get_queryset().filter(label__iexact=3)
+        serializer = AnalysisModelSerializer(analysis_data, many=True)
+        return Response(serializer.data)
