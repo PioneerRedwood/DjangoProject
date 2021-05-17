@@ -163,7 +163,7 @@ class UserAccountManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser):
+class Account(AbstractBaseUser):
     id = models.SmallAutoField(primary_key=True)
     username = models.CharField(max_length=20, unique=True)
     email = models.EmailField(verbose_name='email', max_length=128, unique=True)

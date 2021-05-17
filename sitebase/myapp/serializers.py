@@ -5,16 +5,17 @@ from .models import (
     # Account
 )
 
+
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
-        fields = ['mutual', ]
+        fields = '__all__'
 
 
 class BrandSnapSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
-        fields = ['id', 'brand_name', 'sector', ]
+        fields = ['brand_name', 'sector', 'average_sales', 'startup_cost', 'num_of_franchise']
 
 
 class HeadquarterSerializer(serializers.ModelSerializer):

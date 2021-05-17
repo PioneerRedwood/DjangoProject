@@ -13,7 +13,7 @@ from .serializers import (
 )
 from .models import (
     Brand, Headquarter, Population, AnalysisModel, StoreAddress,
-    User,
+    Account,
 )
 
 
@@ -30,6 +30,9 @@ class BrandListView(generics.ListAPIView):
         return self.queryset.all()
 
     def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            print("Login Success!!")
+
         if request.GET.get('name'):
             queryset = self.get_queryset().filter(brand_name__contains=request.GET.get('name'))
         elif request.GET.get('id'):
@@ -54,9 +57,9 @@ class BrandDetailView(generics.ListAPIView):
         return self.queryset.all()
 
     def get(self, request, *args, **kwargs):
+
         if request.GET.get('name'):
             queryset = self.get_queryset().filter(brand_name__iexact=request.GET.get('name'))
-
         else:
             queryset = self.get_queryset()
 
@@ -131,20 +134,23 @@ class PopulationListView(generics.ListAPIView):
 
 class RegisterView(views.APIView):
     def post(self, request, *args, **kwargs):
-        user = User.objects.create_user(
-            username=request.POST.get('username'),
-            email=request.POST.get('email'),
-            password=request.POST.get('password')
-        )
-        user.save()
-
-        token = Token.objects.create(user=user)
-        return Response({"Token": token.key})
+        if request.data.get('email') and request.data.get('username') and request.data.get('password'):
+            user = Account.objects.create_user(
+                email=request.data.get('email'),
+                username=request.data.get('username'),
+                password=request.data.get('password')
+            )
+            user.save()
+            if Account.objects.filter(email__iexact=request.data.get('email')):
+                return Response(status=200)
+            else:
+                return Response(status=500)
+        return Response(status=500)
 
 
 class LoginView(views.APIView):
     def post(self, request, *args, **kwargs):
-        user = authenticate(email=request.POST.get('email'), password=request.POST.get('password'))
+        user = authenticate(email=request.data.get('email'), password=request.data.get('password'))
         if user is not None:
             login(request, user=user)
             if user.is_authenticated:
@@ -218,7 +224,7 @@ class CustomThemeView(generics.ListAPIView):
             # features ranking => [number_of_months,franchise_count,average_sales,cost,open_rate,close_rate]
             # rank = request.GET.get('features_ranking')
             rank = [p1, p2, p3, p4, p5, p6]
-
+            # 5 4 0 1 2 3
             # features weight => [0.9, 0.7, 0.5, 0.3, 0.2, 0.1]
             # rank_weight = request.GET.get('features_weight')
             rank_weight = [0.9, 0.7, 0.5, 0.3, 0.2, 0.1]
@@ -248,12 +254,12 @@ class CustomThemeView(generics.ListAPIView):
             for row in query_result:
                 # brand weight calculration
                 top_brands.append(
-                    [row.brand_name, float((row.franchise_months_ratio * rank_weight[0]) +
-                                           (row.num_of_franchise_ratio * rank_weight[1]) +
-                                           (row.average_sales_ratio * rank_weight[2]) +
-                                           ((1 - row.startup_cost_ratio) * rank_weight[3]) +
-                                           (row.rate_of_opening_ratio * rank_weight[4]) +
-                                           ((1 - row.rate_of_closing_ratio) * rank_weight[5]))])
+                    [row.brand_name, float((row.franchise_months_ratio * rank_weight[rank[0]]) +
+                                           (row.num_of_franchise_ratio * rank_weight[rank[1]]) +
+                                           (row.average_sales_ratio * rank_weight[rank[2]]) +
+                                           ((1 - row.startup_cost_ratio) * rank_weight[rank[3]]) +
+                                           (row.rate_of_opening_ratio * rank_weight[rank[4]]) +
+                                           ((1 - row.rate_of_closing_ratio) * rank_weight[rank[5]]))])
 
             # brand score sorting
             top_brands.sort(key=lambda x: -x[1])
