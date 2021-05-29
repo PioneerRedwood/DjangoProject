@@ -64,9 +64,11 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:8080',
     'http://127.0.0.1:8080',
     'http://10.178.0.3.8080',
+    'http://127.0.0.1:8081',
+    'http://10.178.0.3.8081',
 ]
 
-# ACCESS_CONTROL_ALLOW_ORIGIN = '*'
+ACCESS_CONTROL_ALLOW_ORIGIN = '*'
 
 ROOT_URLCONF = 'sitebase.urls'
 
@@ -183,6 +185,6 @@ AUTHENTICATION_BACKENDS = (
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ]
 }

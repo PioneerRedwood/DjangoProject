@@ -1,8 +1,10 @@
+from abc import ABC
+
 from rest_framework import serializers, validators
 
 from .models import (
     Population, Brand, AnalysisModel, Headquarter, StoreAddress,
-    # Account
+    Account
 )
 
 
@@ -21,8 +23,8 @@ class BrandSnapSerializer(serializers.ModelSerializer):
 class HeadquarterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Headquarter
-        # fields = '__all__'
-        fields = ('mutual', 'representative', 'representative_number')
+        fields = '__all__'
+        # fields = ('mutual', 'representative', 'representative_number')
 
 
 class AnalysisModelSerializer(serializers.ModelSerializer):
@@ -82,10 +84,18 @@ class AnalysisModelSerializer(serializers.ModelSerializer):
 class StoreAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = StoreAddress
-        fields = '__all__'
+        # fields = '__all__'
+        fields = ['brand_name', 'sector', 'latitude', 'longitude']
 
 
 class PopulationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Population
         fields = '__all__'
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        # fields = '__all__'
+        fields = ['username']
