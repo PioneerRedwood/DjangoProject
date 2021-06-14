@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (
-    Brand, Headquarter, StoreAddress, Population, User
+    Brand, Headquarter, StoreAddress, Population, Account
 )
 
 
@@ -60,4 +60,4 @@ admin.site.register(Brand, BrandAdmin)
 admin.site.register(Headquarter, HeadquarterAdmin)
 admin.site.register(StoreAddress, StoreAddressAdmin)
 admin.site.register(Population, PopulationAdmin)
-admin.site.register(User, UserAdmin)
+admin.site.register(Account, UserAdmin)

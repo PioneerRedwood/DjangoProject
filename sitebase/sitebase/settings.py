@@ -28,9 +28,7 @@ SECRET_KEY = 'django-insecure-sizbugop0q6rhmlg_j24^%ohs8=5o$zfhy&34mlqaalc2kucou
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '*'
-]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -63,12 +61,14 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:8081',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'http://10.178.0.3.8080',
     'http://127.0.0.1:8081',
     'http://10.178.0.3.8081',
 ]
 
-# ACCESS_CONTROL_ALLOW_ORIGIN = '*'
+ACCESS_CONTROL_ALLOW_ORIGIN = '*'
 
 ROOT_URLCONF = 'sitebase.urls'
 
@@ -175,7 +175,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/'
 
-AUTH_USER_MODEL = 'myapp.User'
+# AUTH_USER_MODEL = 'myapp.User'
+AUTH_USER_MODEL = 'myapp.Account'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.AllowAllUsersModelBackend',
@@ -184,6 +185,6 @@ AUTHENTICATION_BACKENDS = (
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ]
 }
